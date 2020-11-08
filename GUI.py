@@ -25,7 +25,6 @@ choices = [0, 1, 0, 1]
 main_sheet = pd.read_csv('QuestionAnswerPairClean.csv')[['question_format', 'answer_format', 'label']].\
     dropna(subset=['label'])
 
-
 title = tk.Label(text="NLP Comparison Grapher", font=("Century Gothic", 15))
 title.grid(column=0, row=0, columnspan=4)
 
@@ -203,9 +202,15 @@ def grapher():
 
             fig = plt.figure(figsize=(5, 4))
             graph = fig.add_subplot(111)
-            graph.plot(runs, res_1, label=vecs_str[choices[0]] + ", " + clasfs_str[choices[2]])
+            str1, str2 = vecs_str[choices[0]][0: len(vecs_str[choices[0]]) - 2] + ", " + \
+                         clasfs_str[choices[2]][0: len(clasfs_str[choices[2]]) - 2], \
+                         vecs_str[choices[1]][0: len(vecs_str[choices[1]]) - 2] + ", " + \
+                         clasfs_str[choices[3]][0: len(clasfs_str[choices[3]]) - 2]
+            str1 += " (C= " + y2_entry.get() + ")" if choices[2] == 0 else " (neighbors= " + y3_entry.get() + ")"
+            str2 += " (C= " + z1_entry.get() + ")" if choices[3] == 0 else " (neighbors =" + z2_entry.get() + ")"
+            graph.plot(runs, res_1, label=str1)
             graph.scatter(runs, res_1)
-            graph.plot(runs, res_2, label=vecs_str[choices[1]] + ", " + clasfs_str[choices[3]])
+            graph.plot(runs, res_2, label=str2)
             graph.scatter(runs, res_2)
             graph.set_xlabel("Runs")
             graph.set_ylabel("Accuracy")
