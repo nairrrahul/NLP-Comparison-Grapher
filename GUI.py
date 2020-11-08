@@ -1,13 +1,14 @@
 import numpy as np
 import pandas as pd
 import tkinter as tk
-import matplotlib
 import matplotlib.pyplot as plt
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 
 from sklearn.feature_extraction.text import TfidfVectorizer, CountVectorizer
 from sklearn.svm import LinearSVC
 from sklearn.neighbors import KNeighborsClassifier
+from sklearn.linear_model import LogisticRegression
+from sklearn.naive_bayes import MultinomialNB
 from sklearn.model_selection import train_test_split
 
 window = tk.Tk()
@@ -17,9 +18,9 @@ window.iconbitmap('favicon.ico')
 vecs = [TfidfVectorizer(), CountVectorizer()]
 vecs_2 = [TfidfVectorizer(), CountVectorizer()]
 vecs_str = ["TfidfVectorizer()", "CountVectorizer()"]
-clasfs = [LinearSVC(), KNeighborsClassifier()]
-clasfs_2 = [LinearSVC(), KNeighborsClassifier()]
-clasfs_str = ["LinearSVC()", "KNeighborsClassifier()"]
+clasfs = [LinearSVC(), KNeighborsClassifier(), MultinomialNB(), LogisticRegression()]
+clasfs_2 = [LinearSVC(), KNeighborsClassifier(), MultinomialNB(), LogisticRegression()]
+clasfs_str = ["LinearSVC()", "KNeighborsClassifier()", "MultinomialNB()", "LogisticRegression()"]
 choices = [0, 1, 0, 1]
 
 main_sheet = pd.read_csv('QuestionAnswerPairClean.csv')[['question_format', 'answer_format', 'label']].\
@@ -159,18 +160,16 @@ def nlp_values(vec_1, vec_2, clasf_1, clasf_2, n_ns, c_val, n_ns2, c_val2, cross
         val_train, val_test = vector_1.fit_transform(tr_1), vector_1.transform(te_1)
         val_train2, val_test2 = vector_2.fit_transform(tr_1), vector_2.transform(te_1)
 
+        n1 = clasf_1
         if clasfs.index(clasf_1) == 0:
-            n1 = clasf_1
             n1.C = c_val
-        else:
-            n1 = clasf_1
+        elif clasfs.index(clasf_1) == 1:
             n1.n_neighbors = n_ns
 
+        n2 = clasf_2
         if clasfs_2.index(clasf_2) == 0:
-            n2 = clasf_2
             n2.C = c_val2
-        else:
-            n2 = clasf_2
+        elif clasfs.index(clasf_1) == 1:
             n2.n_neighbors = n_ns2
 
         n1.fit(val_train, tr_2)
@@ -220,8 +219,12 @@ def grapher():
                          clasfs_str[choices[2]][0: len(clasfs_str[choices[2]]) - 2], \
                          vecs_str[choices[1]][0: len(vecs_str[choices[1]]) - 2] + ", " + \
                          clasfs_str[choices[3]][0: len(clasfs_str[choices[3]]) - 2]
-            str1 += " (C=" + y2_entry.get() + ")" if choices[2] == 0 else " (neighbors=" + y3_entry.get() + ")"
-            str2 += " (C=" + z1_entry.get() + ")" if choices[3] == 0 else " (neighbors=" + z2_entry.get() + ")"
+            if choices[2] == 0 or choices[2] == 1:
+                str1 += " (C=" + y2_entry.get() + ")" if choices[2] == 0 \
+                    else " (neighbors=" + y3_entry.get() + ")"
+            if choices[3] == 0 or choices[3] == 1:
+                str2 += " (C=" + z1_entry.get() + ")" if choices[3] == 0 \
+                    else " (neighbors=" + z2_entry.get() + ")"
             graph.plot(runs, res_1, label=str1)
             graph.scatter(runs, res_1)
             graph.plot(runs, res_2, label=str2)
