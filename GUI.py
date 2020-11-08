@@ -117,12 +117,20 @@ def check_errors():
             int(y3_entry.get())
             try:
                 float(y2_entry.get())
-                if int(y1_entry.get()) < 1 or int(y3_entry.get()) < 1:
-                    error_text.configure(text="Cross-Validations or n_neighbors has to be >= 1")
-                elif float(y2_entry.get()) <= 0:
-                    error_text.configure(text="C-Value has to be > 0")
-                else:
-                    error_text.configure(text="")
+                try:
+                    float(z1_entry.get())
+                    try:
+                        int(z2_entry.get())
+                        if int(y1_entry.get()) < 1 or int(y3_entry.get()) < 1:
+                            error_text.configure(text="Cross-Validations or n_neighbors has to be >= 1")
+                        elif float(y2_entry.get()) <= 0:
+                            error_text.configure(text="C-Value has to be > 0")
+                        else:
+                            error_text.configure(text="")
+                    except ValueError:
+                        error_text.configure(text="ValueError: n_neighbors needs to be 'int'")
+                except ValueError:
+                    error_text.configure(text="ValueError: C needs to be 'float'")
             except ValueError:
                 error_text.configure(text="ValueError: C needs to be 'float'")
         except ValueError:
@@ -133,7 +141,6 @@ def check_errors():
 
 # RUN ALGORITHM
 def nlp_values(vec_1, vec_2, clasf_1, clasf_2, n_ns, c_val, n_ns2, c_val2, cross_num):
-    check_errors()
     if len(error_text.cget("text")) > 0:
         return -1, -1
     avg_1 = 0
@@ -182,8 +189,15 @@ def grapher():
     runs = []
     final_graph_notif.configure(text="")
     error_text.configure(text="")
+    error = False
     try:
         int(y4_entry.get())
+    except ValueError:
+        error = True
+        error_text.configure(text="ValueError: Number of Runs needs to be 'int'")
+
+    if not error:
+        check_errors()
         if int(y4_entry.get()) <= 0:
             error_text.configure(text="Number of Runs needs to be >= 1")
         if len(error_text.cget("text")) > 0:
@@ -206,8 +220,8 @@ def grapher():
                          clasfs_str[choices[2]][0: len(clasfs_str[choices[2]]) - 2], \
                          vecs_str[choices[1]][0: len(vecs_str[choices[1]]) - 2] + ", " + \
                          clasfs_str[choices[3]][0: len(clasfs_str[choices[3]]) - 2]
-            str1 += " (C= " + y2_entry.get() + ")" if choices[2] == 0 else " (neighbors= " + y3_entry.get() + ")"
-            str2 += " (C= " + z1_entry.get() + ")" if choices[3] == 0 else " (neighbors =" + z2_entry.get() + ")"
+            str1 += " (C=" + y2_entry.get() + ")" if choices[2] == 0 else " (neighbors=" + y3_entry.get() + ")"
+            str2 += " (C=" + z1_entry.get() + ")" if choices[3] == 0 else " (neighbors=" + z2_entry.get() + ")"
             graph.plot(runs, res_1, label=str1)
             graph.scatter(runs, res_1)
             graph.plot(runs, res_2, label=str2)
@@ -222,8 +236,6 @@ def grapher():
             graph_canvas.get_tk_widget().grid(column=0, row=12, columnspan=4)
 
             final_graph_notif.configure(text="Graph Generated")
-    except ValueError:
-        error_text.configure(text="Number of Runs needs to be an integer")
 
 
 get_button = tk.Button(text="Generate", fg="white", bg="black", command=grapher)
