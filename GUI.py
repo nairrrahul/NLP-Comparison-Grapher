@@ -195,7 +195,7 @@ def grapher():
                 x1, x2 = nlp_values(vecs[choices[0]], vecs_2[choices[1]],
                                     clasfs[choices[2]], clasfs_2[choices[3]], int(y3_entry.get()),
                         float(y2_entry.get()), int(z2_entry.get()),
-                                    int(z1_entry.get()), int(y1_entry.get()))
+                                    float(z1_entry.get()), int(y1_entry.get()))
                 res_1.append(x1)
                 res_2.append(x2)
                 runs.append(i)
