@@ -29,7 +29,7 @@ main_sheet = pd.read_csv('QuestionAnswerPairClean.csv')[['question_format', 'ans
 title = tk.Label(text="NLP Comparison Grapher", font=("Century Gothic", 15))
 title.grid(column=0, row=0, columnspan=4)
 
-sub_1 = tk.Label(text="Classifiers and Vectorizers", font=("Century Gothic", 12))
+sub_1 = tk.Label(text="Classifiers and Vectorizers", font=("Century Gothic", 12), bg="#E0E0E0")
 sub_1.grid(column=0, row=1, columnspan=4, padx=10, pady=10)
 
 v1_title = tk.Label(text="Vectorizer 1")
@@ -60,7 +60,7 @@ cl2 = tk.OptionMenu(window, c_v2, *clasfs)
 cl1.grid(column=2, row=3)
 cl2.grid(column=3, row=3)
 
-sub_2 = tk.Label(text="Extra Customizations", font=("Century Gothic", 12))
+sub_2 = tk.Label(text="Extra Customizations", font=("Century Gothic", 12), bg="#E0E0E0")
 sub_2.grid(column=0, row=4, columnspan=4, padx=10, pady=10)
 
 x1_title = tk.Label(text="Cross-Validations")
@@ -104,14 +104,19 @@ z2_entry.grid(column=2, row=8)
 
 # UPDATING CHOICES FOR SELECTIONS
 def update_choices():
-    choices[0], choices[1], choices[2], choices[3] = \
+    try:
+        choices[0], choices[1], choices[2], choices[3] = \
         vecs_str.index(m_v.get()), vecs_str.index(m_v2.get()), \
         clasfs_str.index(c_v.get()), clasfs_str.index(c_v2.get())
+    except ValueError:
+        error_text.configure(text="Critical Error, Restart Application")
 
 
 # CHECKING TYPE and NUMBER OF CUSTOMIZATIONS
 def check_errors():
     update_choices()
+    if len(error_text.cget("text")) > 0:
+        return
     try:
         int(y1_entry.get())
         try:
@@ -186,6 +191,8 @@ def grapher():
     res_1 = []
     res_2 = []
     runs = []
+    avg1 = 0
+    avg2 = 0
     final_graph_notif.configure(text="")
     error_text.configure(text="")
     error = False
@@ -209,10 +216,14 @@ def grapher():
                                     clasfs[choices[2]], clasfs_2[choices[3]], int(y3_entry.get()),
                         float(y2_entry.get()), int(z2_entry.get()),
                                     float(z1_entry.get()), int(y1_entry.get()))
+                avg1 += x1
+                avg2 += x2
                 res_1.append(x1)
                 res_2.append(x2)
                 runs.append(i)
 
+            avg1 /= len(runs)
+            avg2 /= len(runs)
             fig = plt.figure(figsize=(5, 4))
             graph = fig.add_subplot(111)
             str1, str2 = vecs_str[choices[0]][0: len(vecs_str[choices[0]]) - 2] + ", " + \
@@ -225,6 +236,8 @@ def grapher():
             if choices[3] == 0 or choices[3] == 1:
                 str2 += " (C=" + z1_entry.get() + ")" if choices[3] == 0 \
                     else " (neighbors=" + z2_entry.get() + ")"
+            str1 += ", AVG=" + str(round(avg1, 3))
+            str2 += ", AVG=" + str(round(avg2, 3))
             graph.plot(runs, res_1, label=str1)
             graph.scatter(runs, res_1)
             graph.plot(runs, res_2, label=str2)
@@ -232,7 +245,7 @@ def grapher():
             graph.set_xlabel("Runs")
             graph.set_ylabel("Accuracy")
             plt.axis((0, int(y4_entry.get()) + 1, 0.15, 0.9))
-            graph.legend()
+            graph.legend(fontsize=8)
 
             graph_canvas = FigureCanvasTkAgg(fig, master=window)
             graph_canvas.draw()
