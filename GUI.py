@@ -68,9 +68,9 @@ x2_title = tk.Label(text="C₁ (LinearSVC)")
 x3_title = tk.Label(text="n_neighbors₁ (KNN)")
 x4_title = tk.Label(text="Number of Runs")
 
-x1_title.grid(column=0, row=5)
-x2_title.grid(column=1, row=5)
-x3_title.grid(column=2, row=5)
+x2_title.grid(column=0, row=5)
+x3_title.grid(column=1, row=5)
+x1_title.grid(column=2, row=5)
 x4_title.grid(column=3, row=5)
 
 y1_entry = tk.Entry()
@@ -82,24 +82,33 @@ y3_entry.insert(0, 1)
 y4_entry = tk.Entry()
 y4_entry.insert(0, 1)
 
-y1_entry.grid(column=0, row=6)
-y2_entry.grid(column=1, row=6)
-y3_entry.grid(column=2, row=6)
+y2_entry.grid(column=0, row=6)
+y3_entry.grid(column=1, row=6)
+y1_entry.grid(column=2, row=6)
 y4_entry.grid(column=3, row=6)
 
 z1_title = tk.Label(text="C₂ (LinearSVC)")
 z2_title = tk.Label(text="n_neighbors₂ (KNN)")
+stop1_title = tk.Label(text="Stop-Word Removal (1)")
+stop2_title = tk.Label(text="Stop-Word Removal (2)")
 
-z1_title.grid(column=1, row=7)
-z2_title.grid(column=2, row=7)
+z1_title.grid(column=0, row=7)
+z2_title.grid(column=1, row=7)
+stop1_title.grid(column=2, row=7)
+stop2_title.grid(column=3, row=7)
 
 z1_entry = tk.Entry()
 z1_entry.insert(0, 1)
 z2_entry = tk.Entry()
 z2_entry.insert(0, 1)
+var1, var2 = tk.IntVar(), tk.IntVar()
+stop1_entry = tk.Checkbutton(variable=var1)
+stop2_entry = tk.Checkbutton(variable=var2)
 
-z1_entry.grid(column=1, row=8)
-z2_entry.grid(column=2, row=8)
+z1_entry.grid(column=0, row=8)
+z2_entry.grid(column=1, row=8)
+stop1_entry.grid(column=2, row=8)
+stop2_entry.grid(column=3, row=8)
 
 
 # UPDATING CHOICES FOR SELECTIONS
@@ -146,7 +155,10 @@ def check_errors():
 
 
 # RUN ALGORITHM
-def nlp_values(vec_1, vec_2, clasf_1, clasf_2, n_ns, c_val, n_ns2, c_val2, cross_num):
+def nlp_values(vec_1, vec_2, clasf_1, clasf_2, n_ns, c_val, n_ns2, c_val2, cross_num, v1str, v2str):
+    print("1: " + str(v1str) + ", 2: " + str(v2str))
+    vec_1.stop_words = None
+    vec_2.stop_words = None
     if len(error_text.cget("text")) > 0:
         return -1, -1
     avg_1 = 0
@@ -154,6 +166,14 @@ def nlp_values(vec_1, vec_2, clasf_1, clasf_2, n_ns, c_val, n_ns2, c_val2, cross
     for i in range(0, cross_num):
         vector_1 = vec_1
         vector_2 = vec_2
+        if v1str == 1:
+            vector_1.stop_words = 'english'
+        else:
+            vector_1.stop_words = None
+        if v2str == 1:
+            vector_2.stop_words = 'english'
+        else:
+            vector_2.stop_words = None
 
         train, test = train_test_split(main_sheet, test_size=0.25)
 
@@ -215,7 +235,7 @@ def grapher():
                 x1, x2 = nlp_values(vecs[choices[0]], vecs_2[choices[1]],
                                     clasfs[choices[2]], clasfs_2[choices[3]], int(y3_entry.get()),
                         float(y2_entry.get()), int(z2_entry.get()),
-                                    float(z1_entry.get()), int(y1_entry.get()))
+                                    float(z1_entry.get()), int(y1_entry.get()), var1.get(), var2.get())
                 avg1 += x1
                 avg2 += x2
                 res_1.append(x1)
@@ -238,6 +258,10 @@ def grapher():
                     else " (neighbors=" + z2_entry.get() + ")"
             str1 += ", AVG=" + str(round(avg1, 3))
             str2 += ", AVG=" + str(round(avg2, 3))
+            if var1.get() == 1:
+                str1 += ", Stop-Word"
+            if var2.get() == 1:
+                str2 += ", Stop-Word"
             graph.plot(runs, res_1, label=str1)
             graph.scatter(runs, res_1)
             graph.plot(runs, res_2, label=str2)
