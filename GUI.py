@@ -114,6 +114,8 @@ stop2_entry.grid(column=3, row=8)
 # UPDATING CHOICES FOR SELECTIONS
 def update_choices():
     try:
+        clasfs[1] = KNeighborsClassifier()
+        clasfs_2[1] = KNeighborsClassifier()
         choices[0], choices[1], choices[2], choices[3] = \
         vecs_str.index(m_v.get()), vecs_str.index(m_v2.get()), \
         clasfs_str.index(c_v.get()), clasfs_str.index(c_v2.get())
@@ -156,7 +158,6 @@ def check_errors():
 
 # RUN ALGORITHM
 def nlp_values(vec_1, vec_2, clasf_1, clasf_2, n_ns, c_val, n_ns2, c_val2, cross_num, v1str, v2str):
-    print("1: " + str(v1str) + ", 2: " + str(v2str))
     vec_1.stop_words = None
     vec_2.stop_words = None
     if len(error_text.cget("text")) > 0:
